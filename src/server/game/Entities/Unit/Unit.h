@@ -1765,7 +1765,7 @@ public:
     [[nodiscard]] bool IsAlive() const { return (m_deathState == ALIVE); };
     [[nodiscard]] bool isDying() const { return (m_deathState == JUST_DIED); };
     [[nodiscard]] bool isDead() const { return (m_deathState == DEAD || m_deathState == CORPSE); };
-    DeathState getDeathState() { return m_deathState; };
+    DeathState getDeathState() const { return m_deathState; };
     virtual void setDeathState(DeathState s, bool despawn = false);           // overwrited in Creature/Player/Pet
 
     [[nodiscard]] ObjectGuid GetOwnerGUID() const { return GetGuidValue(UNIT_FIELD_SUMMONEDBY); }
@@ -1781,6 +1781,11 @@ public:
     [[nodiscard]] ObjectGuid GetPetGUID() const { return m_SummonSlot[SUMMON_SLOT_PET]; }
     void SetCritterGUID(ObjectGuid guid) { SetGuidValue(UNIT_FIELD_CRITTER, guid); }
     [[nodiscard]] ObjectGuid GetCritterGUID() const { return GetGuidValue(UNIT_FIELD_CRITTER); }
+
+    //npcbot
+    [[nodiscard]] void SetControlledByPlayer(bool set) { m_ControlledByPlayer = set; }
+    [[nodiscard]] GameObject* GetFirstGameObjectById(uint32 id) const;
+    //end npcbot
 
     [[nodiscard]] bool IsControlledByPlayer() const { return m_ControlledByPlayer; }
     [[nodiscard]] bool IsCreatedByPlayer() const { return m_CreatedByPlayer; }
@@ -2125,6 +2130,7 @@ public:
     void RemoveVisibleAura(uint8 slot) { m_visibleAuras.erase(slot); UpdateAuraForGroup(slot);}
 
     [[nodiscard]] uint32 GetInterruptMask() const { return m_interruptMask; }
+    bool HasInterruptFlag(uint32 flags) const { return (m_interruptMask & flags) != 0; }
     void AddInterruptMask(uint32 mask) { m_interruptMask |= mask; }
     void UpdateInterruptMask();
 
@@ -2419,6 +2425,11 @@ public:
     virtual void ProcessTerrainStatusUpdate();
 
     [[nodiscard]] bool CanRestoreMana(SpellInfo const* spellInfo) const;
+
+    //npcbot
+    bool HasReactive(ReactiveType reactive) const { return m_reactiveTimer[reactive] > 0; }
+    void ClearReactive(ReactiveType reactive);
+    //end npcbot
 
 protected:
     explicit Unit (bool isWorldObject);

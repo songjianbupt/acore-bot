@@ -455,7 +455,8 @@ private:
 };
 
 std::unique_ptr<IWorld>& getWorldInstance();
-#define sWorld getWorldInstance()
+//#define sWorld getWorldInstance()
+#define sWorld World::instance()
 
 #endif
 /// @}

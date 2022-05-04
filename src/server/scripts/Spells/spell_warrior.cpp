@@ -28,6 +28,11 @@
 #include "SpellMgr.h"
 #include "SpellScript.h"
 
+//npcbot
+#include "Creature.h"
+//end npcbot
+
+
 enum WarriorSpells
 {
     SPELL_WARRIOR_INTERVENE_TRIGGER                 = 59667,

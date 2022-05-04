@@ -128,6 +128,24 @@ public:
                         target->CastSpell(target, SPELL_SUMMON_IMPALING_SPINE, true);
                         Talk(SAY_NEEDLE);
                     }
+                    //npcbot: try selecting npcbot
+                    else if (Unit* bottarget = SelectTarget(SelectTargetMethod::Random, 1, [=](Unit const* target) -> bool {
+                        if (!target || target->GetTypeId() != TYPEID_UNIT || !target->ToCreature()->IsNPCBot() ||
+                            target->ToCreature()->IsFreeBot() ||
+                            !me->IsWithinCombatRange(target, 200.0f))
+                            return false;
+
+                        return true;
+                        }))
+                    {
+                        me->CastSpell(bottarget, SPELL_IMPALING_SPINE, false);
+                        //_spineTargetGUID = bottarget->GetGUID();
+                        //must let target summon, otherwise you cannot click the spine
+                        //bottarget->SummonGameObject(GO_NAJENTUS_SPINE, *bottarget, QuaternionData(), 30s);
+                        bottarget->CastSpell(target, SPELL_SUMMON_IMPALING_SPINE, true);
+                        Talk(SAY_NEEDLE);
+                    }
+                    //end npcbot
                     events.ScheduleEvent(EVENT_SPELL_SPINE, 20000);
                     return;
                 case EVENT_YELL:

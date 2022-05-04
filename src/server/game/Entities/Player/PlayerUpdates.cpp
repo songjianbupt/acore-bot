@@ -419,7 +419,11 @@ void Player::Update(uint32 p_time)
         m_delayed_unit_relocation_timer = 0;
         RemoveFromNotify(NOTIFY_VISIBILITY_CHANGED);
     }
-}
+    //NpcBot mod: Update
+    if (_botMgr)
+        _botMgr->Update(p_time);
+    //end Npcbot
+
 
 void Player::UpdateMirrorTimers()
 {
@@ -1388,6 +1392,11 @@ void Player::UpdatePvPState()
             pvpInfo.EndTimer == 0)
             pvpInfo.EndTimer = GameTime::GetGameTime().count(); // start toggle-off
     }
+
+    //npcbot: update pvp flags for bots
+    if (HaveBot())
+        _botMgr->UpdatePvPForBots();
+    //end npcbot
 }
 
 void Player::UpdateFFAPvPState(bool reset /*= true*/)

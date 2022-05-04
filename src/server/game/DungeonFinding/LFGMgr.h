@@ -582,6 +582,9 @@ namespace lfg
 
     private:
         TeamId GetTeam(ObjectGuid guid);
+        //npcbot
+        uint8 FilterClassRoles(Player* player, uint8 roles);
+        //end npcbot
         void RestoreState(ObjectGuid guid, char const* debugMsg);
         void ClearState(ObjectGuid guid, char const* debugMsg);
         void SetSelectedDungeons(ObjectGuid guid, LfgDungeonSet const& dungeons);

@@ -172,6 +172,12 @@ std::unique_ptr<IWorld>& getWorldInstance()
     static std::unique_ptr<IWorld> instance = std::make_unique<World>();
     return instance;
 }
+World* World::instance()
+{
+    static World instance;
+    //static std::unique_ptr<IWorld> instance = std::make_unique<World>();
+    return &instance;
+}
 
 /// Find a player in a specified zone
 Player* World::FindPlayerInZone(uint32 zone)

@@ -120,6 +120,15 @@ bool Group::Create(Player* leader)
     if (m_groupType & GROUPTYPE_RAID)
         _initRaidSubGroupsCounter();
 
+    //npcbot - set loot mode on create
+    //LOG_ERROR("entities.player", "Group::Create(): new group with leader %s", leader->GetName().c_str());
+    if (leader->HaveBot()) //player + npcbot so set to free-for-all on create
+    {
+        if (!isLFGGroup())
+            m_lootMethod = FREE_FOR_ALL;
+    }
+    else
+    //end npcbot
     if (!isLFGGroup())
         m_lootMethod = GROUP_LOOT;
 
@@ -414,6 +423,12 @@ bool Group::AddMember(Player* player)
 
     SubGroupCounterIncrease(subGroup);
 
+    //npcbot - check if trying to add bot
+    //LOG_ERROR("entities.player", "Group::AddMember(): new member %s", player->GetName().c_str());
+    if (player->GetGUID().IsPlayer())
+    {
+    //end npcbot
+
     player->SetGroupInvite(nullptr);
     if (player->GetGroup())
     {
@@ -427,6 +442,9 @@ bool Group::AddMember(Player* player)
 
     // if the same group invites the player back, cancel the homebind timer
     _cancelHomebindIfInstance(player);
+    //npcbot
+    }
+    //end npcbot
 
     if (!isRaidGroup())                                      // reset targetIcons for non-raid-groups
     {
@@ -451,6 +469,10 @@ bool Group::AddMember(Player* player)
     {
         sScriptMgr->OnGroupAddMember(this, player->GetGUID());
 
+        //npcbot - check 2
+        if (player->GetGUID().IsPlayer())
+        {
+        //end npcbot
         if (!IsLeader(player->GetGUID()) && !isBGGroup() && !isBFGroup())
         {
             Player::ResetInstances(player->GetGUID(), INSTANCE_RESET_GROUP_JOIN, false);
@@ -527,6 +549,9 @@ bool Group::AddMember(Player* player)
 
         if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
             m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
+        //npcbot
+        }
+        //end npcbot
     }
 
     return true;
@@ -543,6 +568,44 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
         return m_memberSlots.size() > 0;
     }
 
+    //npcbot: skip group size check before removing a bot
+    if (!guid.IsPlayer())
+    {
+        // Remove bot from group in DB
+        if (!isBGGroup() && !isBFGroup())
+        {
+            CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GROUP_MEMBER);
+            stmt->setUInt32(0, guid.GetCounter());
+            CharacterDatabase.Execute(stmt);
+            DelinkMember(guid);
+
+        }
+        // Update subgroup
+        member_witerator slot = _getMemberWSlot(guid);
+        if (slot != m_memberSlots.end())
+        {
+            SubGroupCounterDecrease(slot->group);
+            m_memberSlots.erase(slot);
+        }
+
+        SendUpdate();
+
+        // do not disband raid group if bot owner logging out within dungeon
+        // 1-player raid groups will not happen unless player is gm - bots will rejoin at login
+        if (GetMembersCount() < 2 && isRaidGroup() && GetLeaderGUID())
+        {
+            Player* player = ObjectAccessor::FindPlayer(GetLeaderGUID());
+            Map* map = player ? player->FindMap() : nullptr;
+            if (!(map && map->IsDungeon() && player && player->GetSession()->PlayerLogout()))
+                Disband();
+        }
+        else if (GetMembersCount() < 2 && !(isLFGGroup() || isBGGroup() || isBFGroup()))
+            Disband();
+
+        return true;
+    }
+    else
+    //end npcbot
     // remove member and change leader (if need) only if strong more 2 members _before_ member remove (BG/BF allow 1 member group)
     if (GetMembersCount() > ((isBGGroup() || isLFGGroup() || isBFGroup()) ? 1u : 2u))
     {
@@ -683,6 +746,9 @@ bool Group::RemoveMember(ObjectGuid guid, const RemoveMethod& method /*= GROUP_R
 
         if (m_memberMgr.getSize() < ((isLFGGroup() || isBGGroup() || isBFGroup()) ? 1u : 2u))
         {
+            //npcbot: prevent group from being disbanded due to checking only players count
+            if (GetMembersCount() < ((isLFGGroup() || isBGGroup()) ? 1u : 2u))
+            //end npcbot
             Disband();
             return false;
         }

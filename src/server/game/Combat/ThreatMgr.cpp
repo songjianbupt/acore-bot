@@ -26,6 +26,10 @@
 #include "SpellMgr.h"
 #include "Unit.h"
 #include "UnitEvents.h"
+//npcbot
+#include "botmgr.h"
+//end npcbot
+
 
 //==============================================================
 //================= ThreatCalcHelper ===========================
@@ -47,6 +51,11 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
 
         if (Player* modOwner = hatedUnit->GetSpellModOwner())
             modOwner->ApplySpellMod(threatSpell->Id, SPELLMOD_THREAT, threat);
+
+        //npcbot: threat mods
+        if (hatedUnit->GetTypeId() == TYPEID_UNIT && hatedUnit->ToCreature()->GetBotAI())
+            BotMgr::ApplyBotThreatMods(hatedUnit, threadSpell, threat);
+        //end npcbot
     }
 
     return hatedUnit->ApplyTotalThreatModifier(threat, schoolMask);
@@ -69,6 +78,12 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
     // not to GM
     if (hatedUnit->GetTypeId() == TYPEID_PLAYER && hatedUnit->ToPlayer()->IsGameMaster())
         return false;
+
+    //npcbot npcbots and their pets cannot have threadlist
+    Creature const* cWho = hatedUnit->ToCreature();
+    if (cWho->IsNPCBot() || cWho->IsNPCBotPet())
+        return false;
+    //end npcbot
 
     // not to dead and not for dead
     if (!hatedUnit->IsAlive() || !hatingUnit->IsAlive())

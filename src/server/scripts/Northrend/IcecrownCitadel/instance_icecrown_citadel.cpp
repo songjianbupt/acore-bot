@@ -253,6 +253,20 @@ public:
                 SpawnGunship();
         }
 
+        //npcbot: handle bot map transfer
+        void OnNPCBotEnter(Creature* bot) override
+        {
+            //if (IsFactionBuffActive)
+                DoCastSpellOnNPCBot(bot, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG);
+        }
+
+        void OnNPCBotLeave(Creature* bot) override
+        {
+            DoRemoveAurasDueToSpellOnNPCBot(bot, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG);
+        }
+        //end npcbot
+        //
+
         void OnCreatureCreate(Creature* creature) override
         {
             if (TeamIdInInstance == TEAM_NEUTRAL)
@@ -281,6 +295,14 @@ public:
             std::string name2("Kor'kron ");
             if (!creature->GetTransport() && creature->GetPositionZ() <= 205.0f && creature->GetExactDist2d(-439.0f, 2210.0f) <= 150.0f && (creature->GetEntry() == 37544 || creature->GetEntry() == 37545 || creature->GetName().compare(0, name1.length(), name1) == 0 || creature->GetName().compare(0, name2.length(), name2) == 0))
                 creature->AddToNotify(NOTIFY_AI_RELOCATION);
+
+                //npcbot: handle bot pets
+                if (creature->IsNPCBotPet())
+                {
+                    //if (IsFactionBuffActive)
+                        creature->CastSpell(creature, TeamInInstance == ALLIANCE ? SPELL_STRENGHT_OF_WRYNN : SPELL_HELLSCREAMS_WARSONG, true);
+                }
+                //end npcbot
 
             // pussywizard: check weekly here, before possible UpdateEntry
             // allow creating all of them, because after killing Marrowgar some have to appear, so just hide them

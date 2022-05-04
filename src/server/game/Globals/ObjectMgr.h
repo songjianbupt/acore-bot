@@ -142,6 +142,24 @@ struct GameTele
     std::wstring wnameLow;
 };
 
+//npcbot
+#define MAX_CREATURE_OUTFIT_DISPLAYS 11
+struct CreatureOutfit
+{
+    uint8 race;
+    uint8 gender;
+    uint8 face;
+    uint8 skin;
+    uint8 hair;
+    uint8 facialhair;
+    uint8 haircolor;
+    uint32 outfit[MAX_CREATURE_OUTFIT_DISPLAYS];
+};
+
+typedef std::unordered_map<uint32, CreatureOutfit > CreatureOutfitContainer;
+
+//end npcbot
+
 typedef std::unordered_map<uint32, GameTele > GameTeleContainer;
 
 enum ScriptsType
@@ -1076,6 +1094,10 @@ public:
 
     void LoadNPCSpellClickSpells();
 
+    //npcbot
+    void LoadCreatureOutfits();
+    //end npcbot
+
     void LoadGameTele();
 
     void LoadGossipMenu();
@@ -1326,6 +1348,10 @@ public:
     bool AddGameTele(GameTele& data);
     bool DeleteGameTele(std::string_view name);
 
+    //npcbot
+    CreatureOutfitContainer const& GetCreatureOutfitMap() const { return _creatureOutfitStore; }
+    //end npcbot
+
     [[nodiscard]] TrainerSpellData const* GetNpcTrainerSpells(uint32 entry) const
     {
         CacheTrainerSpellContainer::const_iterator  iter = _cacheTrainerSpellStore.find(entry);
@@ -1409,6 +1435,10 @@ public:
 
     [[nodiscard]] uint32 GetQuestMoneyReward(uint8 level, uint32 questMoneyDifficulty) const;
     void SendServerMail(Player* player, uint32 id, uint32 reqLevel, uint32 reqPlayTime, uint32 rewardMoneyA, uint32 rewardMoneyH, uint32 rewardItemA, uint32 rewardItemCountA, uint32 rewardItemH, uint32 rewardItemCountH, std::string subject, std::string body, uint8 active) const;
+
+    //npcbot
+    CreatureOutfitContainer _creatureOutfitStore;
+    //end npcbot
 
 private:
     // first free id for selected id type

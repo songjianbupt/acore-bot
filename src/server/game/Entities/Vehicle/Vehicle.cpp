@@ -28,6 +28,11 @@
 #include "Unit.h"
 #include "Util.h"
 
+//npcbot
+#include "botmgr.h"
+//end npcbot
+
+
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) :
     _me(unit), _vehicleInfo(vehInfo), _usableSeatNum(0), _creatureEntry(creatureEntry), _status(STATUS_NONE)
 {
@@ -466,10 +471,21 @@ void Vehicle::RemovePassenger(Unit* unit)
     if (seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_PASSENGER_NOT_SELECTABLE && !seat->second.Passenger.IsUnselectable)
         unit->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
+    //npcbot
+    if (unit->GetTypeId() == TYPEID_UNIT && unit->ToCreature()->GetBotAI())
+        BotMgr::OnBotExitVehicle(unit->ToCreature(), this);
+    //end npcbot
+
     seat->second.Passenger.Reset();
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
+    {
+        //npcbot
+        if (unit->ToPlayer()->HaveBot())
+            BotMgr::OnBotOwnerExitVehicle(unit->ToPlayer(), this);
+        //end npcbot
         _me->RemoveCharmedBy(unit);
+    }
 
     if (_me->IsInWorld())
     {

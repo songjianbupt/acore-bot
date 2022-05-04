@@ -90,6 +90,7 @@ namespace Acore::ChatCommands
 }
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
+#define MOD_PRESENT_NPCBOTS 1
 
 // Check out our guide on how to create new hooks in our wiki! https://www.azerothcore.org/wiki/hooks-script
 /*

@@ -302,6 +302,10 @@ public:
     // FG: evil hacks
     void BroadcastGroupUpdate(void);
 
+    //npcbots
+    ObjectGuid const* GetTargetIcons() const { return m_targetIcons; }
+    //end npcbots
+
     // LFG
     void AddLfgBuffFlag() { m_lfgGroupFlags |= GROUP_LFG_FLAG_APPLY_RANDOM_BUFF; }
     void AddLfgRandomInstanceFlag() { m_lfgGroupFlags |= GROUP_LFG_FLAG_IS_RANDOM_INSTANCE; }

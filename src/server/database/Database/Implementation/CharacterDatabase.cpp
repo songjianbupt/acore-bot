@@ -601,6 +601,25 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     PrepareStatement(CHAR_SEL_CHAR_SETTINGS, "SELECT source, data FROM character_settings WHERE guid = ?", CONNECTION_ASYNC);
     PrepareStatement(CHAR_REP_CHAR_SETTINGS, "REPLACE INTO character_settings (guid, source, data) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_CHAR_SETTINGS, "DELETE FROM character_settings WHERE guid = ?", CONNECTION_ASYNC);
+
+
+    // NPCBots
+    PrepareStatement(CHAR_UPD_NPCBOT_OWNER, "UPDATE characters_npcbot SET owner = ? WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_NPCBOT_OWNER_ALL, "UPDATE characters_npcbot SET owner = ? WHERE owner = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_NPCBOT_ROLES, "UPDATE characters_npcbot SET roles = ? WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_SEL_NPCBOT_EQUIP_BY_ITEM_INSTANCE, "SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text, guid, itemEntry, owner_guid "
+        "FROM item_instance WHERE guid IN (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_SYNCH);
+    PrepareStatement(CHAR_UPD_NPCBOT_EQUIP, "UPDATE characters_npcbot SET equipMhEx = ?, equipOhEx = ?, equipRhEx = ?, "
+        "equipHead = ?, equipShoulders = ?, equipChest = ?, equipWaist = ?, equipLegs = ?, equipFeet = ?, equipWrist = ?, equipHands = ?, equipBack = ?, equipBody = ?, equipFinger1 = ?, equipFinger2 = ?, equipTrinket1 = ?, equipTrinket2 = ?, equipNeck = ? WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_NPCBOT, "DELETE FROM characters_npcbot WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_INS_NPCBOT, "INSERT INTO characters_npcbot (entry, roles, spec, faction) VALUES (?, ?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_NPCBOT_FACTION, "UPDATE characters_npcbot SET faction = ? WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_NPCBOT_SPEC, "UPDATE characters_npcbot SET spec = ? WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_UPD_NPCBOT_DISABLED_SPELLS, "UPDATE characters_npcbot SET spells_disabled = ? WHERE entry = ?", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_REP_NPCBOT_STATS, "REPLACE INTO characters_npcbot_stats "
+        "(entry, maxhealth, maxpower, strength, agility, stamina, intellect, spirit, armor, defense, resHoly, resFire, resNature, resFrost, resShadow, resArcane, blockPct, dodgePct, parryPct, critPct, attackPower, spellPower, spellPen, hastePct, hitBonusPct, expertise, armorPenPct) VALUES "
+        "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
+    // End NPCBots
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

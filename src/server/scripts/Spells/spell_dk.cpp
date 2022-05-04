@@ -962,6 +962,13 @@ class spell_dk_anti_magic_zone : public AuraScript
         }
 
         amount = talentSpell->Effects[EFFECT_0].CalcValue(owner);
+        //npcbot: take bot attack power into account
+        if (Creature const* bot = owner->ToCreature())
+        {
+            if (bot->IsNPCBot())
+                amount += int32(2 * bot->GetTotalAttackPowerValue(BASE_ATTACK));
+        }
+        //end npcbot
         if (Player* player = owner->ToPlayer())
         {
             amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
@@ -2051,6 +2058,16 @@ class spell_dk_spell_deflection : public AuraScript
         if (GetTarget()->IsNonMeleeSpellCast(false, false, true) || GetTarget()->HasUnitState(UNIT_STATE_CONTROLLED))
             chance = 0.0f;
 
+        //npcbot handle creature case (and prevent crashes)
+        Unit* target = GetTarget();
+        if (target->GetTypeId() == TYPEID_UNIT)
+        {
+            if (dmgInfo.GetDamageType() == SPELL_DIRECT_DAMAGE &&
+                roll_chance_f(target->ToCreature()->GetCreatureParryChance()))
+                absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
+        }
+        else
+        //end npcbot
         if ((dmgInfo.GetDamageType() == SPELL_DIRECT_DAMAGE) && roll_chance_f(chance))
             absorbAmount = CalculatePct(dmgInfo.GetDamage(), absorbPct);
     }
